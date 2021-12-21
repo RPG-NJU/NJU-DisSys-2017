@@ -1,3 +1,9 @@
+/*
+@author GRP
+@date 2021.12.10
+@description 分布式系统课程实验，要求所有添加的代码均在本文件(raft.go)中。整体的算法逻辑参考Raft的动画演示(http://thesecretlivesofdata.com/raft/)，易于理解。
+*/
+
 package raft
 
 //
@@ -23,8 +29,6 @@ import "labrpc"
 // import "bytes"
 // import "encoding/gob"
 
-
-
 //
 // as each Raft peer becomes aware that successive log entries are
 // committed, the peer should send an ApplyMsg to the service (or
@@ -32,9 +36,9 @@ import "labrpc"
 //
 type ApplyMsg struct {
 	Index       int
-	Command     interface{}
-	UseSnapshot bool   // ignore for lab2; only used in lab3
-	Snapshot    []byte // ignore for lab2; only used in lab3
+	Command     interface{} // 定义一个指令，采用interface{}，表示的是一个空的interface/
+	UseSnapshot bool        // ignore for lab2; only used in lab3
+	Snapshot    []byte      // ignore for lab2; only used in lab3
 }
 
 //
@@ -50,6 +54,13 @@ type Raft struct {
 	// Look at the paper's Figure 2 for a description of what
 	// state a Raft server must maintain.
 
+	// 根据论文中的Figure2中的表格，需要构建同等的State表格，用于存储一些状态信息。
+
+	// Persistent State on All Servers
+	// 持久存在的状态，在响应RPC之前进行更新
+	currentTerm int // 服务器最终得到的任期轮次，初始化为0，逐轮递增
+	votedFor    int // 当前任期中收到来自本人的选票的CandidateID，如果没有就是null
+	log[]
 }
 
 // return currentTerm and whether this server
@@ -89,9 +100,6 @@ func (rf *Raft) readPersist(data []byte) {
 	// d.Decode(&rf.xxx)
 	// d.Decode(&rf.yyy)
 }
-
-
-
 
 //
 // example RequestVote RPC arguments structure.
@@ -136,7 +144,6 @@ func (rf *Raft) sendRequestVote(server int, args RequestVoteArgs, reply *Request
 	return ok
 }
 
-
 //
 // the service using Raft (e.g. a k/v server) wants to start
 // agreement on the next command to be appended to Raft's log. if this
@@ -154,7 +161,6 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 	index := -1
 	term := -1
 	isLeader := true
-
 
 	return index, term, isLeader
 }
@@ -191,7 +197,6 @@ func Make(peers []*labrpc.ClientEnd, me int,
 
 	// initialize from state persisted before a crash
 	rf.readPersist(persister.ReadRaftState())
-
 
 	return rf
 }
