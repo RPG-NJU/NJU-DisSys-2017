@@ -23,7 +23,9 @@ package raft
 //   in the same server.
 //
 
-import "sync"
+import (
+	"sync"
+)
 import "labrpc"
 
 // import "bytes"
@@ -119,6 +121,11 @@ func (rf *Raft) readPersist(data []byte) {
 //
 type RequestVoteArgs struct {
 	// Your data here.
+	// 参考Raft Paper中Figure2，其中RequestVote RPC可以用于这段代码的理解。
+	Term         int // Candidate的任期编号
+	CandidateID  int // Candidate的编号
+	LastLogIndex int // Candidate最新的Log索引
+	LastLogTerm  int // Candidate最新的Log对应的任期编号
 }
 
 //
@@ -126,6 +133,9 @@ type RequestVoteArgs struct {
 //
 type RequestVoteReply struct {
 	// Your data here.
+	// 同理，Figure2中RequestVote RPC中的Result应该可以对应Reply
+	Term        int  // 当前任期编号。
+	VoteGranted bool // 是否投票，true代表投票
 }
 
 //
