@@ -41,6 +41,11 @@ type ApplyMsg struct {
 	Snapshot    []byte      // ignore for lab2; only used in lab3
 }
 
+type LogType struct {
+	LeaderTerm int         // Leader的任期
+	Command    interface{} // 需要执行的命令
+}
+
 //
 // A Go object implementing a single Raft peer.
 //
@@ -57,10 +62,18 @@ type Raft struct {
 	// 根据论文中的Figure2中的表格，需要构建同等的State表格，用于存储一些状态信息。
 
 	// Persistent State on All Servers
-	// 持久存在的状态，在响应RPC之前进行更新
-	currentTerm int // 服务器最终得到的任期轮次，初始化为0，逐轮递增
-	votedFor    int // 当前任期中收到来自本人的选票的CandidateID，如果没有就是null
-	log[]
+	// 在所有服务器上持久存在的状态，在响应RPC之前进行更新
+	currentTerm int       // 服务器最终得到的任期轮次，初始化为0，逐轮递增
+	votedFor    int       // 当前任期中收到来自本人的选票的CandidateID，如果没有就是null
+	log         []LogType // 记录Log
+
+	// 在所有服务器不稳定的存在
+	commitIndex int // 已经被提交的Log的最大索引，初始化为0，递增。
+	lastApplied int // 被执行的Log的最大索引，初始化为0，递增。
+
+	// 在Leader上不稳定存在的
+	nextIndex  []int // 记录对于每一个follower，需要发送给它的下一条Log索引。
+	matchIndex []int // 对于每一个follower，已经复制完成的最大Log索引。
 }
 
 // return currentTerm and whether this server
